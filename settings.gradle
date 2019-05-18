@@ -1,1 +1,4 @@
 rootProject.name = 'junit4-parameterised'
+
+include 'junit4-parameterised-runner'
+include 'junit4-parameterised-examples'

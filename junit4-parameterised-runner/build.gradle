@@ -1,0 +1,26 @@
+sourceSets {
+    fixtures {
+        java.srcDirs = ['src/fixtures/java']
+        resources.srcDirs = ['src/fixtures/resources']
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+
+    test {
+        compileClasspath += fixtures.output
+        runtimeClasspath += fixtures.output
+    }
+}
+
+configurations {
+    fixturesCompile.extendsFrom compile
+    fixturesRuntime.extendsFrom runtime
+}
+
+dependencies {
+    compile(group: 'junit', name: 'junit', version: '4.12')
+
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.10.0'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
+}

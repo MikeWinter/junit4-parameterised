@@ -1,2 +1,15 @@
-apply plugin: 'idea'
-apply plugin: 'java'
+allprojects {
+    group 'uk.me.michael_winter.junit.plugins'
+    version '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+
+    sourceCompatibility = 1.8
+}

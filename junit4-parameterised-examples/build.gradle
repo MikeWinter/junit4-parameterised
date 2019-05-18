@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':junit4-parameterised-runner')
+
+    testCompile(group: 'junit', name: 'junit', version: '4.12') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.10.0'
+}
