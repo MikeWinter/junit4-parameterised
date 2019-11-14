@@ -4,6 +4,7 @@ import org.junit.Test;
 
 public class InvalidTestMethodVisibilityExample {
     @Test
+    @SuppressWarnings("TestMethodWithIncorrectSignature")
     void testIsNotPublic() {
     }
 }

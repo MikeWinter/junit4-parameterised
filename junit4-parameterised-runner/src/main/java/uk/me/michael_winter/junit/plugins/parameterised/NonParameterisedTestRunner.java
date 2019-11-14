@@ -1,7 +1,8 @@
-package uk.me.michael_winter.junit.plugins.parameterised.runners;
+package uk.me.michael_winter.junit.plugins.parameterised;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -17,14 +18,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.util.Objects.nonNull;
 import static org.junit.runner.Description.createTestDescription;
 
-public class NonParameterisedTestRunner extends IgnorableRunner {
+class NonParameterisedTestRunner extends IgnorableRunner {
     private final TestClass testClass;
     private final FrameworkMethod method;
     private Description description = null;
 
-    public NonParameterisedTestRunner(TestClass testClass, FrameworkMethod method) {
+    NonParameterisedTestRunner(TestClass testClass, FrameworkMethod method) {
         if (method.getMethod().getParameterCount() > 0) {
             throw new RuntimeException("Method " + method.getName() + " should have no parameters");
         }
@@ -45,14 +47,18 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
     }
 
     @Override
-    public boolean isIgnored() {
-        return false;
+    boolean isIgnored() {
+        return nonNull(method.getAnnotation(Ignore.class));
     }
 
     @Override
     public void run(RunNotifier notifier) {
         Description description = getDescription();
-        runTest(methodBlock(), description, notifier);
+        if (isIgnored()) {
+            notifier.fireTestIgnored(description);
+        } else {
+            runTest(methodBlock(), description, notifier);
+        }
     }
 
     private void runTest(Statement statement, Description description, RunNotifier notifier) {
@@ -102,11 +108,11 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
     public static class ReflectiveCreator {
         private final Constructor<?> constructor;
 
-        public ReflectiveCreator(Constructor<?> constructor) {
+        ReflectiveCreator(Constructor<?> constructor) {
             this.constructor = constructor;
         }
 
-        public Object create() throws Throwable {
+        Object create() throws Throwable {
             try {
                 return constructor.newInstance();
             } catch (InvocationTargetException e) {
@@ -119,7 +125,7 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
         private final FrameworkMethod method;
         private final Object instance;
 
-        public MethodInvoker(FrameworkMethod method, Object instance) {
+        MethodInvoker(FrameworkMethod method, Object instance) {
             this.method = method;
             this.instance = instance;
         }
@@ -135,7 +141,7 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
         private final List<FrameworkMethod> beforeMethods;
         private final Object test;
 
-        public BeforeInvoker(Statement next, List<FrameworkMethod> beforeMethods, Object test) {
+        BeforeInvoker(Statement next, List<FrameworkMethod> beforeMethods, Object test) {
             this.next = next;
             this.beforeMethods = beforeMethods;
             this.test = test;
@@ -155,7 +161,7 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
         private final List<FrameworkMethod> afterMethods;
         private final Object test;
 
-        public AfterInvoker(Statement next, List<FrameworkMethod> afterMethods, Object test) {
+        AfterInvoker(Statement next, List<FrameworkMethod> afterMethods, Object test) {
             this.next = next;
             this.afterMethods = afterMethods;
             this.test = test;
@@ -184,7 +190,7 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
     public static class RuleInvoker extends Statement {
         private final Statement statement;
 
-        public RuleInvoker(Statement next, Iterable<TestRule> rules, Description description) {
+        RuleInvoker(Statement next, Iterable<TestRule> rules, Description description) {
             statement = applyAll(next, rules, description);
         }
 
@@ -204,7 +210,7 @@ public class NonParameterisedTestRunner extends IgnorableRunner {
     public static class DeferredException extends Statement {
         private final Throwable e;
 
-        public DeferredException(Throwable e) {
+        DeferredException(Throwable e) {
             this.e = e;
         }
 

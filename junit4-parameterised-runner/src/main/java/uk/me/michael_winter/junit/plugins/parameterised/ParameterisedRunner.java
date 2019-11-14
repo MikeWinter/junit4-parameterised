@@ -1,6 +1,5 @@
 package uk.me.michael_winter.junit.plugins.parameterised;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -11,15 +10,11 @@ import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.FrameworkMember;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
-import uk.me.michael_winter.junit.plugins.parameterised.runners.IgnorableRunner;
-import uk.me.michael_winter.junit.plugins.parameterised.runners.IgnoredTestRunner;
-import uk.me.michael_winter.junit.plugins.parameterised.runners.NonParameterisedTestRunner;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 public class ParameterisedRunner extends ParentRunner<IgnorableRunner> {
@@ -182,9 +177,7 @@ public class ParameterisedRunner extends ParentRunner<IgnorableRunner> {
     }
 
     private IgnorableRunner toRunner(FrameworkMethod method) {
-        if (nonNull(method.getAnnotation(Ignore.class))) {
-            return new IgnoredTestRunner(getTestClass(), method);
-        } else if (method.getMethod().getParameterCount() == 0) {
+        if (method.getMethod().getParameterCount() == 0) {
             return new NonParameterisedTestRunner(getTestClass(), method);
         }
 

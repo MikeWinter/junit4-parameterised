@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class InvalidStaticTestMethodExample {
     @Test
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "TestMethodWithIncorrectSignature"})
     public static void testIsStatic() {
     }
 }

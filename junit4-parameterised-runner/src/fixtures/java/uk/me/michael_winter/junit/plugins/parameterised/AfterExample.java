@@ -1,4 +1,4 @@
-package uk.me.michael_winter.junit.plugins.parameterised.runners;
+package uk.me.michael_winter.junit.plugins.parameterised;
 
 import org.junit.After;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package uk.me.michael_winter.junit.plugins.parameterised;
+package uk.me.michael_winter.junit.plugins.parameterised.annotations;
 
 import java.lang.annotation.Target;
 

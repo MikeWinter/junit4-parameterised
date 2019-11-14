@@ -11,7 +11,7 @@ public class InitializationErrorMatcher extends TypeSafeDiagnosingMatcher<Initia
         this.causeSubstring = causeSubstring;
     }
 
-    public static InitializationErrorMatcher anInitialisationErrorMessageContaining(String substring) {
+    static InitializationErrorMatcher anInitialisationErrorMessageContaining(String substring) {
         return new InitializationErrorMatcher(substring);
     }
 
@@ -25,7 +25,7 @@ public class InitializationErrorMatcher extends TypeSafeDiagnosingMatcher<Initia
     protected boolean matchesSafely(InitializationError error, Description mismatchDescription) {
         boolean matchFound = error.getCauses()
                 .stream()
-                .anyMatch(this::containsSubstring);
+                .anyMatch(this::messageContainsSubstring);
 
         if (!matchFound) {
             mismatchDescription.appendText("was not found.");
@@ -33,7 +33,8 @@ public class InitializationErrorMatcher extends TypeSafeDiagnosingMatcher<Initia
         return matchFound;
     }
 
-    private boolean containsSubstring(Throwable c) {
-        return c.getMessage().contains(causeSubstring);
+    private boolean messageContainsSubstring(Throwable throwable) {
+        return throwable.getMessage()
+                .contains(causeSubstring);
     }
 }

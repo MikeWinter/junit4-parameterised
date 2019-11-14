@@ -283,6 +283,6 @@ public class ParameterisedRunnerTest {
 
         runner.run(runNotifier);
 
-        verify(runNotifier, never()).fireTestFailure(any());
+        verify(runNotifier).fireTestIgnored(notNull());
     }
 }

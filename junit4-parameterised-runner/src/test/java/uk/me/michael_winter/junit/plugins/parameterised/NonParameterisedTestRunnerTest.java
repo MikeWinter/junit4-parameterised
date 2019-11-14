@@ -1,4 +1,4 @@
-package uk.me.michael_winter.junit.plugins.parameterised.runners;
+package uk.me.michael_winter.junit.plugins.parameterised;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,14 +12,11 @@ import org.junit.runners.model.TestClass;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import uk.me.michael_winter.junit.plugins.parameterised.ParameterisedTestExample;
-import uk.me.michael_winter.junit.plugins.parameterised.TestExample;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class NonParameterisedTestRunnerTest {
     @Rule
@@ -148,10 +145,10 @@ public class NonParameterisedTestRunnerTest {
     public void shouldSendFailureLifecycleEventNotificationsInOrder() {
         Runner runner = forFailingTest(FailingTestExample.class);
         RunNotifier runNotifier = Mockito.mock(RunNotifier.class);
+        InOrder inOrder = Mockito.inOrder(runNotifier);
 
         runner.run(runNotifier);
 
-        InOrder inOrder = Mockito.inOrder(runNotifier);
         inOrder.verify(runNotifier).fireTestStarted(notNull());
         inOrder.verify(runNotifier).fireTestFailure(notNull());
         inOrder.verify(runNotifier).fireTestFinished(notNull());
@@ -237,5 +234,23 @@ public class NonParameterisedTestRunnerTest {
 
         verify(runNotifier, never()).fireTestFailure(any());
         assertThat(RuleOrderExample.ruleFieldWasInvokedFirst()).isTrue();
+    }
+
+    @Test
+    public void shouldConsiderTestIgnoredIfAnnotatedWithIgnore() {
+        IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored");
+
+        assertThat(runner.isIgnored()).isTrue();
+    }
+
+    @Test
+    public void shouldOnlyNotifyTestAsIgnoredIfAnnotatedWithIgnore() {
+        IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored");
+        RunNotifier runNotifier = Mockito.mock(RunNotifier.class);
+
+        runner.run(runNotifier);
+
+        verify(runNotifier).fireTestIgnored(notNull());
+        verifyNoMoreInteractions(runNotifier);
     }
 }

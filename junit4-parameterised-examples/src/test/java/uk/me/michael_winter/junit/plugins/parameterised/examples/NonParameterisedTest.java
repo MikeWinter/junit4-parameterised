@@ -10,6 +10,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NonParameterisedTest {
     @Test
     public void shouldRunNonParameterisedTests() {
-        assertThat(1).isGreaterThan(0);
+        int largerValue = 1;
+        int smallerValue = 0;
+
+        assertThat(largerValue).isGreaterThan(smallerValue);
     }
 }

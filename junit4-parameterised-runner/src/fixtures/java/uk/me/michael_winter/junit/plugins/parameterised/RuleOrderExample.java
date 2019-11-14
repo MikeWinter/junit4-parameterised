@@ -1,4 +1,4 @@
-package uk.me.michael_winter.junit.plugins.parameterised.runners;
+package uk.me.michael_winter.junit.plugins.parameterised;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,7 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RuleOrderExample {
     private static int ruleFieldOrdinal = 0;
     private static int ruleMethodOrdinal = 0;
+
     private final AtomicInteger order = new AtomicInteger();
+
     @Rule
     public final TestRule rule = (base, description) -> new Statement() {
         @Override

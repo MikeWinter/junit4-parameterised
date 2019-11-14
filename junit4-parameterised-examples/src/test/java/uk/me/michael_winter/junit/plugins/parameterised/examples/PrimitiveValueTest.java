@@ -2,8 +2,8 @@ package uk.me.michael_winter.junit.plugins.parameterised.examples;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import uk.me.michael_winter.junit.plugins.parameterised.ParameterIntValues;
 import uk.me.michael_winter.junit.plugins.parameterised.ParameterisedRunner;
+import uk.me.michael_winter.junit.plugins.parameterised.annotations.ParameterIntValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

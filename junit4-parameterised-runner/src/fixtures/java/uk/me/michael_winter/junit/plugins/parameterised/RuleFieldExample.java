@@ -1,4 +1,4 @@
-package uk.me.michael_winter.junit.plugins.parameterised.runners;
+package uk.me.michael_winter.junit.plugins.parameterised;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -9,9 +9,15 @@ import org.junit.runners.model.Statement;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RuleMethodExample {
+public class RuleFieldExample {
     private final static AtomicInteger ruleEvaluationCount = new AtomicInteger();
     private final static AtomicInteger anotherRuleEvaluationCount = new AtomicInteger();
+
+    @Rule
+    public final ExampleRule rule = new ExampleRule(ruleEvaluationCount);
+
+    @Rule
+    public final ExampleRule anotherRule = new ExampleRule(anotherRuleEvaluationCount);
 
     @BeforeClass
     public static void resetRules() {
@@ -19,18 +25,8 @@ public class RuleMethodExample {
         anotherRuleEvaluationCount.set(0);
     }
 
-    public static boolean rulesHaveBeenProcessedForTest() {
+    static boolean rulesHaveBeenProcessedForTest() {
         return ruleEvaluationCount.get() == 1 && anotherRuleEvaluationCount.get() == 1;
-    }
-
-    @Rule
-    public TestRule getRule() {
-        return new ExampleRule(ruleEvaluationCount);
-    }
-
-    @Rule
-    public TestRule getAnotherRule() {
-        return new ExampleRule(anotherRuleEvaluationCount);
     }
 
     @Test

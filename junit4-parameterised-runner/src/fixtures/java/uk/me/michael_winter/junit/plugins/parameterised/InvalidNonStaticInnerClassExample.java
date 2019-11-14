@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "InnerClassMayBeStatic"})
 public class InvalidNonStaticInnerClassExample {
     public class TestClass {
         @Test
