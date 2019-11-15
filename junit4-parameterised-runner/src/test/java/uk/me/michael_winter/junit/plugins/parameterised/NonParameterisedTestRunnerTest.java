@@ -5,13 +5,11 @@ import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.TestClass;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.*;
@@ -108,7 +106,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
         runner.run(runNotifier);
 
-        ArgumentCaptor<Failure> failureArgumentCaptor = ArgumentCaptor.forClass(Failure.class);
+        ArgumentCaptor<Failure> failureArgumentCaptor = forClass(Failure.class);
         verify(runNotifier).fireTestFailure(failureArgumentCaptor.capture());
         Throwable cause = failureArgumentCaptor.getValue().getException();
 
@@ -170,7 +168,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
         runner.run(runNotifier);
 
-        final ArgumentCaptor<Failure> failureArgumentCaptor = ArgumentCaptor.forClass(Failure.class);
+        ArgumentCaptor<Failure> failureArgumentCaptor = forClass(Failure.class);
         verify(runNotifier).fireTestFailure(failureArgumentCaptor.capture());
         Throwable cause = failureArgumentCaptor.getValue().getException();
 
@@ -220,7 +218,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
     }
 
     @Test
-    public void shouldOnlyNotifyTestAsIgnoredIfAnnotatedWithIgnore() {
+    public void shouldOnlyNotifyTestAsIgnoredWhenAnnotatedWithIgnore() {
         IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored");
         RunNotifier runNotifier = mock(RunNotifier.class);
 
