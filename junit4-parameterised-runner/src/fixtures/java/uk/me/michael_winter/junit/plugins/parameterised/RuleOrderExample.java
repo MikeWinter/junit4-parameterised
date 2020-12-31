@@ -7,6 +7,7 @@ import org.junit.runners.model.Statement;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"unused", "TestMethodWithIncorrectSignature"})
 public class RuleOrderExample {
     private static int ruleFieldOrdinal = 0;
     private static int ruleMethodOrdinal = 0;
@@ -37,6 +38,11 @@ public class RuleOrderExample {
 
     @Test
     public void aValidTest() {
+        assert ruleFieldOrdinal > 0 && ruleMethodOrdinal > 0;
+    }
+
+    @Test
+    public void aValidTest(int value) {
         assert ruleFieldOrdinal > 0 && ruleMethodOrdinal > 0;
     }
 }

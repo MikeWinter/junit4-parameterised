@@ -9,6 +9,7 @@ import org.junit.runners.model.Statement;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"unused", "TestMethodWithIncorrectSignature"})
 public class RuleMethodExample {
     private final static AtomicInteger ruleEvaluationCount = new AtomicInteger();
     private final static AtomicInteger anotherRuleEvaluationCount = new AtomicInteger();
@@ -20,7 +21,8 @@ public class RuleMethodExample {
     }
 
     public static boolean rulesHaveBeenProcessedForTest() {
-        return ruleEvaluationCount.get() == 1 && anotherRuleEvaluationCount.get() == 1;
+        return ruleEvaluationCount.compareAndSet(1, 0)
+                && anotherRuleEvaluationCount.compareAndSet(1, 0);
     }
 
     @Rule
@@ -35,6 +37,11 @@ public class RuleMethodExample {
 
     @Test
     public void aValidTest() {
+        assert ruleEvaluationCount.get() > 0;
+    }
+
+    @Test
+    public void aValidTest(int value) {
         assert ruleEvaluationCount.get() > 0;
     }
 

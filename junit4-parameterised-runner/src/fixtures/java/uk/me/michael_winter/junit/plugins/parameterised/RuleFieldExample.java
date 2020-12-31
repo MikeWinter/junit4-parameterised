@@ -1,6 +1,5 @@
 package uk.me.michael_winter.junit.plugins.parameterised;
 
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -9,6 +8,7 @@ import org.junit.runners.model.Statement;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"unused", "TestMethodWithIncorrectSignature"})
 public class RuleFieldExample {
     private final static AtomicInteger ruleEvaluationCount = new AtomicInteger();
     private final static AtomicInteger anotherRuleEvaluationCount = new AtomicInteger();
@@ -19,18 +19,18 @@ public class RuleFieldExample {
     @Rule
     public final ExampleRule anotherRule = new ExampleRule(anotherRuleEvaluationCount);
 
-    @BeforeClass
-    public static void resetRules() {
-        ruleEvaluationCount.set(0);
-        anotherRuleEvaluationCount.set(0);
-    }
-
     static boolean rulesHaveBeenProcessedForTest() {
-        return ruleEvaluationCount.get() == 1 && anotherRuleEvaluationCount.get() == 1;
+        return ruleEvaluationCount.compareAndSet(1, 0)
+                && anotherRuleEvaluationCount.compareAndSet(1, 0);
     }
 
     @Test
     public void aValidTest() {
+        assert ruleEvaluationCount.get() > 0;
+    }
+
+    @Test
+    public void aValidTest(int value) {
         assert ruleEvaluationCount.get() > 0;
     }
 

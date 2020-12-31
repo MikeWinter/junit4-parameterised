@@ -5,36 +5,24 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
 import static java.util.Objects.nonNull;
 import static org.junit.runner.Description.createTestDescription;
 
-class NonParameterisedTestRunner extends IgnorableRunner {
+class ParameterisedTestRunner extends IgnorableRunner {
     private final FrameworkMethod method;
-    private Description description = null;
+    private Description description;
 
-    NonParameterisedTestRunner(TestClass testClass, FrameworkMethod method) {
+    ParameterisedTestRunner(TestClass testClass, FrameworkMethod method) {
         super(testClass);
 
-        if (method.getMethod().getParameterCount() > 0) {
-            throw new IllegalArgumentException("Method " + method.getName() + " should have no parameters");
+        if (method.getMethod().getParameterCount() == 0) {
+            throw new IllegalArgumentException("Method " + method.getName() + " should have at least one parameter");
         }
 
         this.method = method;
-    }
-
-    @Override
-    public Description getDescription() {
-        if (description == null) {
-            description = createTestDescription(
-                    method.getDeclaringClass(),
-                    method.getName(),
-                    method.getAnnotations());
-        }
-        return description;
     }
 
     @Override
@@ -42,23 +30,54 @@ class NonParameterisedTestRunner extends IgnorableRunner {
         return nonNull(method.getAnnotation(Ignore.class));
     }
 
+    private Description addedDescription1;
+    private Description addedDescription2;
+
+    @Override
+    public Description getDescription() {
+        if (description == null) {
+            description = Description.createSuiteDescription(
+//                    String.format(
+//                            "%s.%s",
+//                            method.getDeclaringClass().getName(),
+//                            method.getName()),
+                    method.getName() + "foo",
+                    method.getName(),
+                    method.getAnnotations());
+
+            addedDescription1 = createTestDescription(
+                    method.getDeclaringClass().getName(),
+                    method.getName() + "(foo1)");
+            addedDescription2 = createTestDescription(
+                    method.getDeclaringClass().getName(),
+                    method.getName() + "(foo2)");
+            description.addChild(addedDescription1);
+            description.addChild(addedDescription2);
+
+//            description = createTestDescription(
+//                    method.getDeclaringClass(),
+//                    method.getName(),
+//                    method.getAnnotations());
+        }
+        return description;
+    }
+
     @Override
     public void run(RunNotifier notifier) {
-        Description description = getDescription();
         if (isIgnored()) {
             notifier.fireTestIgnored(description);
         } else {
-            runTest(methodBlock(), description, notifier);
+//            notifier.fireTestStarted(description);
+            runTest(methodBlock(), notifier, addedDescription1);
+            runTest(methodBlock(), notifier, addedDescription2);
+//            notifier.fireTestFinished(description);
         }
     }
 
-    private void runTest(Statement statement, Description description, RunNotifier notifier) {
+    private void runTest(Statement statement, RunNotifier notifier, Description description) {
         notifier.fireTestStarted(description);
         try {
             statement.evaluate();
-        } catch (MultipleFailureException e) {
-            e.getFailures()
-                    .forEach(throwable -> notifier.fireTestFailure(new Failure(description, throwable)));
         } catch (Throwable throwable) {
             notifier.fireTestFailure(new Failure(description, throwable));
         } finally {
@@ -91,7 +110,7 @@ class NonParameterisedTestRunner extends IgnorableRunner {
 
         @Override
         public void evaluate() throws Throwable {
-            method.invokeExplosively(instance);
+            method.invokeExplosively(instance, 1);
         }
     }
 }

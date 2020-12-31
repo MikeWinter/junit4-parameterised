@@ -11,22 +11,19 @@ import org.junit.runners.model.FrameworkMember;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 public class ParameterisedRunner extends ParentRunner<IgnorableRunner> {
-    private static final Predicate<FrameworkMember> IS_PUBLIC_MEMBER = FrameworkMember::isPublic;
-    private static final Predicate<FrameworkMember> IS_STATIC_MEMBER = FrameworkMember::isStatic;
-    private static final Predicate<FrameworkMember> IS_NOT_PUBLIC_MEMBER = IS_PUBLIC_MEMBER.negate();
-    private static final Predicate<FrameworkMember> HAS_TIMEOUT_PARAMETER
+    private static final Predicate<FrameworkMember<?>> IS_PUBLIC_MEMBER = FrameworkMember::isPublic;
+    private static final Predicate<FrameworkMember<?>> IS_STATIC_MEMBER = FrameworkMember::isStatic;
+    private static final Predicate<FrameworkMember<?>> IS_NOT_PUBLIC_MEMBER = IS_PUBLIC_MEMBER.negate();
+    private static final Predicate<FrameworkMember<?>> HAS_TIMEOUT_PARAMETER
             = member -> member.getAnnotation(Test.class).timeout() != 0;
-    private static final Predicate<FrameworkMember> HAS_EXPECTED_PARAMETER
+    private static final Predicate<FrameworkMember<?>> HAS_EXPECTED_PARAMETER
             = member -> member.getAnnotation(Test.class).expected() != Test.None.class;
     private static final Predicate<FrameworkField> IS_TEST_RULE_FIELD
             = field -> !TestRule.class.isAssignableFrom(field.getType());
@@ -180,15 +177,20 @@ public class ParameterisedRunner extends ParentRunner<IgnorableRunner> {
     }
 
     private IgnorableRunner toRunner(FrameworkMethod method) {
-        if (method.getMethod().getParameterCount() == 0) {
-            return new NonParameterisedTestRunner(getTestClass(), method);
+        if (hasParameters(method)) {
+            return new ParameterisedTestRunner(getTestClass(), method);
         }
+        return new NonParameterisedTestRunner(getTestClass(), method);
 
-        throw new UnsupportedOperationException(format(
-                "No suitable test runner for method %s(%s)",
-                method.getName(),
-                Arrays.stream(method.getMethod().getParameterTypes())
-                        .map(Class::getSimpleName)
-                        .collect(Collectors.joining(", "))));
+//        throw new UnsupportedOperationException(format(
+//                "No suitable test runner for method %s(%s)",
+//                method.getName(),
+//                Arrays.stream(method.getMethod().getParameterTypes())
+//                        .map(Class::getSimpleName)
+//                        .collect(Collectors.joining(", "))));
+    }
+
+    private static boolean hasParameters(FrameworkMethod method) {
+        return method.getMethod().getParameterCount() > 0;
     }
 }

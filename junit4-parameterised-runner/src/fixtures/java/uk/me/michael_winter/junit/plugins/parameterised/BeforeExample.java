@@ -1,35 +1,37 @@
 package uk.me.michael_winter.junit.plugins.parameterised;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+@SuppressWarnings({"unused", "TestMethodWithIncorrectSignature"})
 public class BeforeExample {
-    private static int setupCallCount = 0;
-    private static int anotherSetupCallCount = 0;
+    private final static AtomicInteger setupCallCount = new AtomicInteger();
+    private final static AtomicInteger anotherSetupCallCount = new AtomicInteger();
 
     static boolean hasBeenSetupForTest() {
-        return setupCallCount == 1 && anotherSetupCallCount == 1;
-    }
-
-    @BeforeClass
-    public static void resetCount() {
-        setupCallCount = 0;
-        anotherSetupCallCount = 0;
+        return setupCallCount.compareAndSet(1, 0)
+                && anotherSetupCallCount.compareAndSet(1, 0);
     }
 
     @Before
     public void setup() {
-        ++setupCallCount;
+        setupCallCount.incrementAndGet();
     }
 
     @Before
     public void anotherSetup() {
-        ++anotherSetupCallCount;
+        anotherSetupCallCount.incrementAndGet();
     }
 
     @Test
     public void aValidTest() {
-        assert setupCallCount > 0;
+        assert setupCallCount.get() > 0;
+    }
+
+    @Test
+    public void aValidTest(int value) {
+        assert setupCallCount.get() > 0;
     }
 }

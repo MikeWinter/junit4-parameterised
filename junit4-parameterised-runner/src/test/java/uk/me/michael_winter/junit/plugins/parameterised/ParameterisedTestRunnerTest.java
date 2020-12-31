@@ -14,24 +14,24 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.*;
 
-public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParameterisedTestRunner> {
-    public NonParameterisedTestRunnerTest() {
-        super(NonParameterisedTestRunner.class);
+public class ParameterisedTestRunnerTest extends AbstractRunnerTest<ParameterisedTestRunner> {
+    public ParameterisedTestRunnerTest() {
+        super(ParameterisedTestRunner.class);
     }
 
     @Test
-    public void shouldDescribeTestMethodsAsTests() {
-        Runner runner = forValidTest(TestExample.class);
+    public void shouldDescribeTestMethodsAsSuites() {
+        Runner runner = forValidTest(TestExample.class, int.class);
 
         Description description = runner.getDescription();
 
-        assertThat(description.isTest())
+        assertThat(description.isSuite())
                 .isTrue();
     }
 
     @Test
     public void shouldUseMethodNameWhenDescribingTests() {
-        Runner runner = forValidTest(TestExample.class);
+        Runner runner = forValidTest(TestExample.class, int.class);
 
         Description description = runner.getDescription();
 
@@ -41,7 +41,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldUseFullyQualifiedClassNameWhenDescribingClassOfTestMethods() {
-        Runner runner = forValidTest(TestExample.class);
+        Runner runner = forValidTest(TestExample.class, int.class);
 
         Description description = runner.getDescription();
 
@@ -51,7 +51,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldProvideAnnotationsWhenDescribingTestMethods() {
-        Runner runner = forValidTest(TestExample.class);
+        Runner runner = forValidTest(TestExample.class, int.class);
 
         Description description = runner.getDescription();
 
@@ -60,26 +60,16 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
     }
 
     @Test
-    public void shouldFailOnConstructionIfTestRequiresParameters() {
+    public void shouldFailOnConstructionIfTestHasNoParameters() {
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("no parameters");
+        expectedException.expectMessage("at least one parameter");
 
-        forValidTest(TestExample.class, int.class);
-    }
-
-    @Test
-    public void shouldNotSendFailureLifecycleEventForSuccessfulTests() {
-        Runner runner = forValidTest(TestExample.class);
-        RunNotifier runNotifier = mock(RunNotifier.class);
-
-        runner.run(runNotifier);
-
-        verify(runNotifier, never()).fireTestFailure(any());
+        forValidTest(TestExample.class);
     }
 
     @Test
     public void shouldSendSuccessfulLifecycleEventNotificationsInOrder() {
-        Runner runner = forValidTest(TestExample.class);
+        Runner runner = forValidTest(TestExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -91,7 +81,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldSendFailureLifecycleEventForFailingTests() {
-        Runner runner = forFailingTest(FailingTestExample.class);
+        Runner runner = forFailingTest(FailingTestExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -100,8 +90,31 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
     }
 
     @Test
+    public void shouldNotSendFailureLifecycleEventForSuccessfulTests() {
+        Runner runner = forValidTest(TestExample.class, int.class);
+        RunNotifier runNotifier = mock(RunNotifier.class);
+
+        runner.run(runNotifier);
+
+        verify(runNotifier, never()).fireTestFailure(any());
+    }
+
+    @Test
+    public void shouldSendFailureLifecycleEventNotificationsInOrder() {
+        Runner runner = forFailingTest(FailingTestExample.class, int.class);
+        RunNotifier runNotifier = mock(RunNotifier.class);
+        InOrder inOrder = inOrder(runNotifier);
+
+        runner.run(runNotifier);
+
+        inOrder.verify(runNotifier).fireTestStarted(notNull());
+        inOrder.verify(runNotifier).fireTestFailure(notNull());
+        inOrder.verify(runNotifier).fireTestFinished(notNull());
+    }
+
+    @Test
     public void shouldIncludeTheImmediateCauseOfFailure() {
-        Runner runner = forFailingTest(FailingTestExample.class);
+        Runner runner = forFailingTest(FailingTestExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -116,21 +129,8 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
     }
 
     @Test
-    public void shouldSendFailureLifecycleEventNotificationsInOrder() {
-        Runner runner = forFailingTest(FailingTestExample.class);
-        RunNotifier runNotifier = mock(RunNotifier.class);
-        InOrder inOrder = inOrder(runNotifier);
-
-        runner.run(runNotifier);
-
-        inOrder.verify(runNotifier).fireTestStarted(notNull());
-        inOrder.verify(runNotifier).fireTestFailure(notNull());
-        inOrder.verify(runNotifier).fireTestFinished(notNull());
-    }
-
-    @Test
     public void shouldRunMethodsWithBeforeAnnotationsOnceBeforeTest() {
-        Runner runner = forValidTest(BeforeExample.class);
+        Runner runner = forValidTest(BeforeExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -141,7 +141,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldRunMethodsWithAfterAnnotationsOnceAfterTest() {
-        Runner runner = forValidTest(AfterExample.class);
+        Runner runner = forValidTest(AfterExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -152,7 +152,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldRunAfterMethodsEvenIfPrecededByException() {
-        Runner runner = forFailingTest(FailingWithAfterExample.class);
+        Runner runner = forFailingTest(FailingWithAfterExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -163,7 +163,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldReportAllExceptionsInAfterMethods() {
-        Runner runner = forValidTest(FailingTeardownWithAfterExample.class);
+        Runner runner = forValidTest(FailingTeardownWithAfterExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -179,7 +179,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldEvaluateRuleFieldsForEachTest() {
-        Runner runner = forValidTest(RuleFieldExample.class);
+        Runner runner = forValidTest(RuleFieldExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -190,7 +190,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldEvaluateRuleMethodsForEachTest() {
-        Runner runner = forValidTest(RuleMethodExample.class);
+        Runner runner = forValidTest(RuleMethodExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -201,7 +201,7 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldEvaluateRuleFieldsBeforeRuleMethods() {
-        Runner runner = forValidTest(RuleOrderExample.class);
+        Runner runner = forValidTest(RuleOrderExample.class, int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -212,14 +212,14 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
 
     @Test
     public void shouldConsiderTestIgnoredIfAnnotatedWithIgnore() {
-        IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored");
+        IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored", int.class);
 
         assertThat(runner.isIgnored()).isTrue();
     }
 
     @Test
     public void shouldOnlyNotifyTestAsIgnoredWhenAnnotatedWithIgnore() {
-        IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored");
+        IgnorableRunner runner = forTest(IgnoredTestMethodExample.class, "testIsIgnored", int.class);
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.run(runNotifier);
@@ -227,4 +227,6 @@ public class NonParameterisedTestRunnerTest extends AbstractRunnerTest<NonParame
         verify(runNotifier).fireTestIgnored(notNull());
         verifyNoMoreInteractions(runNotifier);
     }
+
+    // TODO: correct test count based on parameters
 }

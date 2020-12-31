@@ -1,5 +1,6 @@
 package uk.me.michael_winter.junit.plugins.parameterised;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -18,7 +19,7 @@ public class ParameterisedRunnerTest {
 
     @Test
     public void shouldCountEveryNonParameterisedTestOnce() throws Exception {
-        Runner runner = new ParameterisedRunner(TestExample.class);
+        Runner runner = new ParameterisedRunner(NonParameterisedTestExample.class);
 
         int testCount = runner.testCount();
 
@@ -277,11 +278,12 @@ public class ParameterisedRunnerTest {
     }
 
     @Test
+    @Ignore
     public void shouldFailOnConstructionIfNoSuitableRunnerCanBeFoundForTest() throws Exception {
         expectedException.expect(UnsupportedOperationException.class);
         expectedException.expectMessage("suitable test runner");
 
-        new ParameterisedRunner(ParameterisedTestExample.class);
+        new ParameterisedRunner(TestExample.class);
     }
 
     @Test
@@ -291,6 +293,6 @@ public class ParameterisedRunnerTest {
 
         runner.run(runNotifier);
 
-        verify(runNotifier).fireTestIgnored(notNull());
+        verify(runNotifier, times(2)).fireTestIgnored(notNull());
     }
 }

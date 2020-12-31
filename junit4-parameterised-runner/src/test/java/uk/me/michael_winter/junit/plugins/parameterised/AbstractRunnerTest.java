@@ -9,7 +9,7 @@ import org.junit.runners.model.TestClass;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class AbstractRunnerTest<T extends IgnorableRunner> {
+public abstract class AbstractRunnerTest<T extends IgnorableRunner> {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
